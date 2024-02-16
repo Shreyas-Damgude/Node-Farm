@@ -3,6 +3,16 @@ const url = require("url");
 const http = require("http");
 const replaceTemplate = require("./modules/replaceTemplate");
 
+const css_overview = fs.readFileSync(
+  `${__dirname}/css/style_overview.txt`,
+  "utf-8"
+);
+
+const css_product = fs.readFileSync(
+  `${__dirname}/css/style_product.txt`,
+  "utf-8"
+);
+
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObject = JSON.parse(data);
 
@@ -27,19 +37,20 @@ const server = http.createServer((request, response) => {
   // Overview
   if (pathname === "/" || pathname === "/overview") {
     response.writeHead(200, { "Content-type": "text/html" });
+
     const cardsHtml = dataObject
       .map((ele) => replaceTemplate(tempCard, ele))
       .join("");
 
     const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
-    response.end(output);
+    response.end(output.replace(/{%STYLE%}/g, css_overview));
 
     // Product
   } else if (pathname === "/product") {
     response.writeHead(200, { "Content-type": "text/html" });
     const product = dataObject[query.id];
     const output = replaceTemplate(tempProduct, product);
-    response.end(output);
+    response.end(output.replace(/{%STYLE%}/g, css_product));
 
     // API
   } else if (pathname === "/api") {
